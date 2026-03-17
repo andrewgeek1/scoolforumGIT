@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Чат с {{ friend.first_name }} {{ friend.last_name }}</h4>
+                <a href="{{ url_for('friends') }}" class="btn btn-secondary">Назад к друзьям</a>
+            </div>
+            <div class="card-body">
+                <div id="chat-container" class="chat-container border rounded p-3 mb-3" style="height: 400px; overflow-y: auto;">
+                    {% for message in messages %}
+                    <div class="chat-message {% if message.sender_id == current_user.id %}message-sent{% else %}message-received{% endif %}">
+                        <div class="message-content">{{ message.content }}</div>
+                        <small class="message-time">{{ message.created_at.strftime('%H:%M') }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <form id="message-form" class="d-flex">
+                    <input type="hidden" id="receiver_id" value="{{ friend.id }}">
+                    <input type="text" id="message-content" class="form-control me-2" placeholder="Введите сообщение..." required>
+                    <button type="submit" class="btn btn-primary">Отправить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatContainer = document.getElementById('chat-container');
+    const messageForm = document.getElementById('message-form');
+    const messageInput = document.getElementById('message-content');
+    const receiverId = document.getElementById('receiver_id').value;
+    
+    // Прокрутка вниз при загрузке
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const content = messageInput.value.trim();
+        if (!content) return;
+        
+        fetch('{{ url_for("send_message") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `receiver_id=${receiverId}&content=${encodeURIComponent(content)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Добавляем сообщение в чат
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message message-sent';
+                messageDiv.innerHTML = `
+                    <div class="message-content">${content}</div>
+                    <small class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                `;
+                chatContainer.appendChild(messageDiv);
+                
+                // Очищаем поле ввода
+                messageInput.value = '';
+                
+                // Прокручиваем вниз
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        });
+    });
+    
+    // Автообновление чата каждые 5 секунд
+    setInterval(function() {
+        location.reload();
+    }, 5000);
+});
+</script>
+{% endblock %}
+{% endblock %}

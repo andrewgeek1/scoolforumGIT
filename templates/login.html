@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card fade-in">
+            <div class="card-header">
+                <i class="fas fa-sign-in-alt"></i> Вход в систему
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope"></i> Электронная почта:
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               placeholder="example@school.ru" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock"></i> Пароль:
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               placeholder="Введите пароль" required>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Войти
+                        </button>
+                    </div>
+                </form>
+                
+                <hr>
+                
+                <p class="text-center mb-0">
+                    Нет аккаунта? 
+                    <a href="{{ url_for('register') }}" class="text-primary">
+                        Зарегистрируйтесь <i class="fas fa-arrow-right"></i>
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

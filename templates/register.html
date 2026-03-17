@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card fade-in">
+            <div class="card-header">
+                <i class="fas fa-user-plus"></i> Регистрация нового пользователя
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="first_name" class="form-label">
+                                <i class="fas fa-user"></i> Имя:
+                            </label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" 
+                                   placeholder="Введите имя" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="last_name" class="form-label">
+                                <i class="fas fa-user"></i> Фамилия:
+                            </label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" 
+                                   placeholder="Введите фамилию" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope"></i> Электронная почта:
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               placeholder="example@school.ru" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="class_name" class="form-label">
+                            <i class="fas fa-graduation-cap"></i> Класс:
+                        </label>
+                        <input type="text" class="form-control" id="class_name" name="class_name" 
+                               placeholder="Например: 10А" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock"></i> Пароль:
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               placeholder="Минимум 6 символов" required>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-check"></i> Зарегистрироваться
+                        </button>
+                        <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Назад к входу
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

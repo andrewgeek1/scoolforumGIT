@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Одноклассники - {{ current_user.class_name }}</h2>
+        
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    {% for classmate in classmates %}
+                    {% if classmate.id != current_user.id %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ classmate.first_name }} {{ classmate.last_name }}</h5>
+                                <p class="card-text text-muted">{{ classmate.email }}</p>
+                                
+                                {% set friendship = namespace(value=None) %}
+                                {% for f in current_user.sent_friendships %}
+                                    {% if f.user2_id == classmate.id %}
+                                        {% set friendship.value = f %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% if not friendship.value %}
+                                    {% for f in current_user.received_friendships %}
+                                        {% if f.user1_id == classmate.id %}
+                                            {% set friendship.value = f %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                
+                                <div class="btn-group w-100">
+                                    {% if friendship.value and friendship.value.status == 'accepted' %}
+                                        <a href="{{ url_for('chat', friend_id=classmate.id) }}" class="btn btn-primary btn-sm">Написать</a>
+                                        <span class="btn btn-success btn-sm disabled">Друг</span>
+                                    {% elif friendship.value and friendship.value.status == 'pending' %}
+                                        {% if friendship.value.user1_id == current_user.id %}
+                                            <span class="btn btn-warning btn-sm disabled">Запрос отправлен</span>
+                                        {% else %}
+                                            <a href="{{ url_for('accept_friend', friendship_id=friendship.value.id) }}" class="btn btn-success btn-sm">Принять</a>
+                                        {% endif %}
+                                    {% else %}
+                                        <a href="{{ url_for('add_friend', user_id=classmate.id) }}" class="btn btn-outline-primary btn-sm">Добавить в друзья</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

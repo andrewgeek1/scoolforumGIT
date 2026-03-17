@@ -1,0 +1,15 @@
+{
+  "domain": "testingfm.ru",
+  "www_domain": "www.testingfm.ru",
+  "method": "serveo",
+  "local_port": 5000,
+  "local_ip": "192.168.0.14",
+  "public_ip": "92.50.200.53",
+  "timestamp": "2026-03-13T20:38:28.174413",
+  "urls": {
+    "main": "http://testingfm.ru",
+    "www": "http://www.testingfm.ru",
+    "local": "http://localhost:5000",
+    "network": "http://192.168.0.14:5000"
+  }
+}

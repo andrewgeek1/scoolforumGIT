@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Групповой чат: {{ group.name }}</h4>
+                <a href="{{ url_for('groups') }}" class="btn btn-secondary">Назад к группам</a>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div id="chat-container" class="chat-container border rounded p-3 mb-3" style="height: 400px; overflow-y: auto;">
+                            {% for message in messages %}
+                            <div class="chat-message {% if message.sender_id == current_user.id %}message-sent{% else %}message-received{% endif %}">
+                                <div class="message-sender">
+                                    <small><strong>{{ message.sender.first_name }} {{ message.sender.last_name }}</strong></small>
+                                </div>
+                                <div class="message-content">{{ message.content }}</div>
+                                <small class="message-time">{{ message.created_at.strftime('%H:%M') }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <form id="message-form" class="d-flex">
+                            <input type="hidden" id="group_id" value="{{ group.id }}">
+                            <input type="text" id="message-content" class="form-control me-2" placeholder="Введите сообщение..." required>
+                            <button type="submit" class="btn btn-primary">Отправить</button>
+                        </form>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6>Участники ({{ members|length }})</h6>
+                            </div>
+                            <div class="card-body">
+                                {% for member in members %}
+                                <div class="mb-2">
+                                    <small>
+                                        {{ member.first_name }} {{ member.last_name }}
+                                        {% if member.id == group.created_by %}
+                                        <span class="badge bg-primary">Создатель</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        {% if group.created_by == current_user.id and join_requests %}
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h6>📨 Заявки на вступление ({{ join_requests|length }})</h6>
+                            </div>
+                            <div class="card-body">
+                                {% for request in join_requests %}
+                                <div class="mb-2 p-2 border rounded">
+                                    <small>
+                                        <strong>{{ request.user.first_name }} {{ request.user.last_name }}</strong><br>
+                                        <span class="text-muted">{{ request.user.class_name }}</span>
+                                    </small>
+                                    <div class="mt-1">
+                                        <a href="{{ url_for('handle_group_request', request_id=request.id, action='accept') }}" 
+                                           class="btn btn-success btn-sm" 
+                                           title="Принять">
+                                            ✓
+                                        </a>
+                                        <a href="{{ url_for('handle_group_request', request_id=request.id, action='reject') }}" 
+                                           class="btn btn-danger btn-sm"
+                                           title="Отклонить">
+                                            ✗
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                <a href="{{ url_for('group_requests', group_id=group.id) }}" class="btn btn-outline-warning btn-sm w-100 mt-2">
+                                    Все заявки
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatContainer = document.getElementById('chat-container');
+    const messageForm = document.getElementById('message-form');
+    const messageInput = document.getElementById('message-content');
+    const groupId = document.getElementById('group_id').value;
+    
+    // Прокрутка вниз при загрузке
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const content = messageInput.value.trim();
+        if (!content) return;
+        
+        fetch('{{ url_for("send_group_message") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `group_id=${groupId}&content=${encodeURIComponent(content)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Очищаем поле ввода
+                messageInput.value = '';
+                
+                // Перезагружаем страницу для отображения нового сообщения
+                location.reload();
+            } else {
+                alert(data.error || 'Ошибка отправки сообщения');
+            }
+        });
+    });
+    
+    // Автообновление чата каждые 10 секунд
+    setInterval(function() {
+        location.reload();
+    }, 10000);
+});
+</script>
+{% endblock %}
+{% endblock %}

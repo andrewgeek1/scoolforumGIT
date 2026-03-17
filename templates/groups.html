@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Группы</h2>
+            <a href="{{ url_for('create_group') }}" class="btn btn-primary">Создать группу</a>
+        </div>
+
+        <!-- Мои группы -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Мои группы</h5>
+            </div>
+            <div class="card-body">
+                {% if user_groups %}
+                    <div class="row">
+                        {% for group in user_groups %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        {{ group.name }}
+                                        {% if not group.is_public %}
+                                        <span class="badge bg-secondary">🔒</span>
+                                        {% endif %}
+                                        {% if group.created_by == current_user.id %}
+                                        <span class="badge bg-primary">Создатель</span>
+                                        {% endif %}
+                                    </h5>
+                                    
+                                    {% if group.description %}
+                                    <p class="card-text">{{ group.description }}</p>
+                                    {% endif %}
+                                    
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            {% if group.is_class_group %}
+                                            🎓 Группа класса {{ group.class_name }}
+                                            {% else %}
+                                            {% if group.is_public %}
+                                            🌐 Публичная группа
+                                            {% else %}
+                                            🔒 Закрытая группа
+                                            {% endif %}
+                                            {% endif %}
+                                        </small>
+                                    </p>
+                                    
+                                    <div class="btn-group w-100">
+                                        <a href="{{ url_for('group_chat', group_id=group.id) }}" class="btn btn-primary btn-sm">💬 Чат</a>
+                                        
+                                        {% if group.created_by == current_user.id and not group.is_class_group and not group.is_public %}
+                                            <a href="{{ url_for('group_requests', group_id=group.id) }}" class="btn btn-warning btn-sm">📨 Заявки</a>
+                                        {% endif %}
+                                        
+                                        {% if not group.is_class_group and group.created_by != current_user.id %}
+                                            <a href="{{ url_for('leave_group', group_id=group.id) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Покинуть группу?')">🚪 Выйти</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Вы пока не состоите в группах</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Группы класса -->
+        {% if class_groups %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>🎓 Группы класса {{ current_user.class_name }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for group in class_groups %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ group.name }}</h5>
+                                {% if group.description %}
+                                <p class="card-text">{{ group.description }}</p>
+                                {% endif %}
+                                <a href="{{ url_for('group_chat', group_id=group.id) }}" class="btn btn-primary btn-sm">💬 Открыть чат</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Публичные группы -->
+        {% if public_groups %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>🌐 Публичные группы</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for group in public_groups %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ group.name }}</h5>
+                                {% if group.description %}
+                                <p class="card-text">{{ group.description }}</p>
+                                {% endif %}
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        Создатель: {{ group.creator.first_name }} {{ group.creator.last_name }}
+                                    </small>
+                                </p>
+                                <a href="{{ url_for('join_group', group_id=group.id) }}" class="btn btn-success btn-sm">✅ Вступить</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Закрытые группы -->
+        {% if closed_groups %}
+        <div class="card">
+            <div class="card-header">
+                <h5>🔒 Закрытые группы</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for group in closed_groups %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ group.name }}</h5>
+                                {% if group.description %}
+                                <p class="card-text">{{ group.description }}</p>
+                                {% endif %}
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        Создатель: {{ group.creator.first_name }} {{ group.creator.last_name }}
+                                    </small>
+                                </p>
+                                
+                                {% if group.id in requested_group_ids %}
+                                    <div class="btn-group w-100">
+                                        <span class="btn btn-warning btn-sm disabled">⏳ Заявка отправлена</span>
+                                        <a href="{{ url_for('cancel_join_request', group_id=group.id) }}" class="btn btn-outline-danger btn-sm">❌ Отменить</a>
+                                    </div>
+                                {% else %}
+                                    <a href="{{ url_for('join_group', group_id=group.id) }}" class="btn btn-outline-primary btn-sm">📨 Подать заявку</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Поиск друзей</h2>
+        
+        <!-- Форма поиска -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('find_friends') }}">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Поиск по имени, фамилии или классу..." value="{{ query }}">
+                        <button type="submit" class="btn btn-primary">🔍 Найти</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Список пользователей -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Пользователи ({{ users|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if users %}
+                    <div class="row">
+                        {% for user in users %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ user.first_name }} {{ user.last_name }}</h6>
+                                    <p class="card-text text-muted">
+                                        {{ user.email }}<br>
+                                        Класс: {{ user.class_name }}
+                                    </p>
+                                    
+                                    {% set friendship = namespace(value=None) %}
+                                    {% for f in current_user.sent_friendships %}
+                                        {% if f.user2_id == user.id %}
+                                            {% set friendship.value = f %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if not friendship.value %}
+                                        {% for f in current_user.received_friendships %}
+                                            {% if f.user1_id == user.id %}
+                                                {% set friendship.value = f %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    
+                                    <div class="btn-group w-100">
+                                        {% if friendship.value and friendship.value.status == 'accepted' %}
+                                            <span class="btn btn-success btn-sm disabled">Друг</span>
+                                            <a href="{{ url_for('chat', friend_id=user.id) }}" class="btn btn-primary btn-sm">Написать</a>
+                                        {% elif friendship.value and friendship.value.status == 'pending' %}
+                                            {% if friendship.value.user1_id == current_user.id %}
+                                                <span class="btn btn-warning btn-sm disabled">Запрос отправлен</span>
+                                            {% else %}
+                                                <a href="{{ url_for('accept_friend', friendship_id=friendship.value.id) }}" class="btn btn-success btn-sm">Принять</a>
+                                            {% endif %}
+                                        {% else %}
+                                            <a href="{{ url_for('add_friend', user_id=user.id) }}" class="btn btn-outline-primary btn-sm">Добавить в друзья</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Пользователи не найдены</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

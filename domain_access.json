@@ -1,0 +1,10 @@
+{
+  "domain": "school.testingfm.ru",
+  "public_url": "https://school.testingfm.ru",
+  "local_url": "http://localhost:5000",
+  "local_ip_url": "http://192.168.1.104:5000",
+  "method": "serveo",
+  "timestamp": "2026-03-14T12:09:11.897687",
+  "dns_setup": "Создайте CNAME запись: school CNAME school.serveo.net",
+  "instructions": "\nДОСТУП К ПРИЛОЖЕНИЮ \"ШКОЛЬНАЯ СОЦИАЛЬНАЯ СЕТЬ\"\n================================================\n\n🌍 ОСНОВНОЙ ДОМЕН:\n   http://school.testingfm.ru\n   https://school.testingfm.ru (если настроен SSL)\n\n📍 ЛОКАЛЬНЫЙ ДОСТУП (на этом компьютере):\n   http://localhost:5000\n   http://127.0.0.1:5000\n\n🌐 ДОСТУП В ЛОКАЛЬНОЙ СЕТИ (другие устройства):\n   http://192.168.1.104:5000\n\n🔧 МЕТОД ПОДКЛЮЧЕНИЯ: SERVEO\n\n📋 НАСТРОЙКА DNS:\nСоздайте CNAME запись: school CNAME school.serveo.net\n\n⏰ ВРЕМЯ СОЗДАНИЯ: 2026-03-14 12:09:11\n\n⚠️  ВАЖНО:\n   • Убедитесь, что DNS запись настроена правильно\n   • Проверьте брандмауэр и проброс портов\n   • Туннели работают только пока запущено это приложение\n"
+}

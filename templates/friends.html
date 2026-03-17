@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4"><i class="fas fa-users"></i> Мои друзья</h2>
+        
+        <!-- Входящие заявки -->
+        {% if incoming_requests %}
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <i class="fas fa-bell"></i> Входящие заявки в друзья ({{ incoming_requests|length }})
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for request in incoming_requests %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <i class="fas fa-user-circle fa-3x text-primary"></i>
+                                </div>
+                                <h6 class="card-title text-center">
+                                    {{ request.user.first_name }} {{ request.user.last_name }}
+                                </h6>
+                                <p class="card-text text-center text-muted small">
+                                    <i class="fas fa-graduation-cap"></i> {{ request.user.class_name }}
+                                </p>
+                                <div class="btn-group w-100">
+                                    <a href="{{ url_for('accept_friend', friendship_id=request.friendship_id) }}" 
+                                       class="btn btn-success btn-sm">
+                                        <i class="fas fa-check"></i> Принять
+                                    </a>
+                                    <a href="{{ url_for('reject_friend', friendship_id=request.friendship_id) }}" 
+                                       class="btn btn-danger btn-sm">
+                                        <i class="fas fa-times"></i> Отклонить
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Список друзей -->
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-user-friends"></i> Мои друзья ({{ friends|length }})
+            </div>
+            <div class="card-body">
+                {% if friends %}
+                    <div class="row">
+                        {% for friend in friends %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-user-circle fa-4x text-primary mb-3"></i>
+                                    <h6 class="card-title">{{ friend.first_name }} {{ friend.last_name }}</h6>
+                                    <p class="card-text text-muted small">
+                                        <i class="fas fa-graduation-cap"></i> {{ friend.class_name }}
+                                    </p>
+                                    <div class="btn-group w-100">
+                                        <a href="{{ url_for('chat', friend_id=friend.id) }}" 
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-comment"></i> Чат
+                                        </a>
+                                        <a href="{{ url_for('remove_friend', user_id=friend.id) }}" 
+                                           class="btn btn-outline-danger btn-sm"
+                                           onclick="return confirm('Удалить из друзей?')">
+                                            <i class="fas fa-user-minus"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center mb-0 py-4">
+                        <i class="fas fa-frown fa-3x mb-3"></i><br>
+                        У вас пока нет друзей.<br>
+                        <a href="{{ url_for('find_friends') }}" class="btn btn-primary mt-3">
+                            <i class="fas fa-user-plus"></i> Найти друзей
+                        </a>
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Исходящие заявки -->
+        {% if outgoing_requests %}
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-clock"></i> Исходящие заявки
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for user in outgoing_requests %}
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="card">
+                            <div class="card-body text-center p-2">
+                                <i class="fas fa-user-circle fa-2x text-muted mb-1"></i>
+                                <small>{{ user.first_name }}</small><br>
+                                <span class="badge bg-warning">Ожидание</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

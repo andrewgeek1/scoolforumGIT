@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Поиск</h2>
+        
+        <!-- Форма поиска -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('search') }}">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input type="text" name="q" class="form-control" placeholder="Введите запрос..." value="{{ query }}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="type" class="form-select">
+                                <option value="posts" {% if search_type == 'posts' %}selected{% endif %}>Посты</option>
+                                <option value="users" {% if search_type == 'users' %}selected{% endif %}>Пользователи</option>
+                                <option value="hashtags" {% if search_type == 'hashtags' %}selected{% endif %}>Хештеги</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="submit" class="btn btn-primary w-100">🔍</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Результаты поиска -->
+        {% if query %}
+        <div class="card">
+            <div class="card-header">
+                <h5>Результаты поиска для "{{ query }}" ({{ results|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if results %}
+                    {% if search_type == 'posts' %}
+                        <!-- Результаты поиска по постам -->
+                        {% for post in results %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ post.title }}</h5>
+                                <p class="card-text">{{ post.content }}</p>
+                                
+                                {% if post.image_path %}
+                                <img src="{{ url_for('static', filename='uploads/' + post.image_path) }}" class="img-fluid mb-2" style="max-height: 200px;">
+                                {% endif %}
+                                
+                                <div class="d-flex justify-content-between text-muted">
+                                    <small>
+                                        {% if post.is_anonymous %}
+                                            Анонимно
+                                        {% else %}
+                                            {{ post.author.first_name }} {{ post.author.last_name }}
+                                        {% endif %}
+                                    </small>
+                                    <small>{{ post.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                                </div>
+                                
+                                <div class="mt-2">
+                                    <a href="{{ url_for('forward_post', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">📨 Переслать</a>
+                                    {% if post.user_id == current_user.id %}
+                                    <a href="{{ url_for('delete_post', post_id=post.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Удалить пост?')">Удалить</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    
+                    {% elif search_type == 'users' %}
+                        <!-- Результаты поиска пользователей -->
+                        <div class="row">
+                            {% for user in results %}
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ user.first_name }} {{ user.last_name }}</h6>
+                                        <p class="card-text text-muted">
+                                            {{ user.email }}<br>
+                                            Класс: {{ user.class_name }}
+                                        </p>
+                                        <a href="{{ url_for('add_friend', user_id=user.id) }}" class="btn btn-primary btn-sm">Добавить в друзья</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    
+                    {% elif search_type == 'hashtags' %}
+                        <!-- Результаты поиска по хештегам -->
+                        {% for post in results %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ post.title }}</h5>
+                                <p class="card-text">{{ post.content }}</p>
+                                
+                                <div class="d-flex justify-content-between text-muted">
+                                    <small>
+                                        {% if post.is_anonymous %}
+                                            Анонимно
+                                        {% else %}
+                                            {{ post.author.first_name }} {{ post.author.last_name }}
+                                        {% endif %}
+                                    </small>
+                                    <small>{{ post.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                                </div>
+                                
+                                <div class="mt-2">
+                                    <a href="{{ url_for('forward_post', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">📨 Переслать</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted">Ничего не найдено</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
